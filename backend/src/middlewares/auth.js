@@ -3,6 +3,7 @@
 // Archivo: src/middlewares/auth.js
 // ============================================================================
 const jwt = require('jsonwebtoken');
+const { JWT_SECRET } = require('../config/jwt');
 
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -17,7 +18,7 @@ const verifyToken = (req, res, next) => {
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'clave_secreta_utmach_restaurante_2026');
+    const decoded = jwt.verify(token, JWT_SECRET);
     req.usuario = decoded; // { id_usuario, nombre, email, rol }
     next();
   } catch (error) {

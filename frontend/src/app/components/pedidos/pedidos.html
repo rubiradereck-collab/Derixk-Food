@@ -29,9 +29,14 @@
   }
 
   @if (mensajeError) {
-    <div class="alert alert-danger shadow-sm d-flex align-items-center mb-3 animate__animated animate__fadeIn">
-      <i class="fa-solid fa-triangle-exclamation fs-5 me-2"></i>
-      <div>{{ mensajeError }}</div>
+    <div class="alert alert-danger shadow-sm d-flex justify-content-between align-items-center mb-3 animate__animated animate__fadeIn">
+      <div class="d-flex align-items-center">
+        <i class="fa-solid fa-triangle-exclamation fs-5 me-2"></i>
+        <span>{{ mensajeError }}</span>
+      </div>
+      <button class="btn btn-sm btn-outline-danger ms-3" (click)="cargarPedidos(true)">
+        <i class="fa-solid fa-rotate me-1"></i> Reintentar
+      </button>
     </div>
   }
 

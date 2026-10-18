@@ -49,10 +49,16 @@ export class PedidosComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.pedidos = data || [];
         this.cargando = false;
+        this.mensajeError = '';
       },
       error: (err) => {
         console.error('Error cargando comandas de PostgreSQL:', err);
         this.cargando = false;
+        if (err.status === 401 || err.status === 403) {
+          this.mensajeError = 'Sesión no autorizada o expirada. Por favor inicie sesión como Administrador, Mesero o Cocina para gestionar comandas.';
+        } else {
+          this.mensajeError = 'No se pudo conectar con el servidor PostgreSQL. Verifique que el backend esté ejecutándose.';
+        }
       },
     });
   }
