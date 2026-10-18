@@ -1,0 +1,172 @@
+{
+  "clientName": "Thunder Client",
+  "collectionName": "API Restaurante UTMACH",
+  "collectionId": "restaurante-api-collection",
+  "dateExported": "2026-10-17",
+  "version": "1.1",
+  "folders": [],
+  "requests": [
+    {
+      "_id": "req-01",
+      "name": "01 - Auth Login Admin",
+      "method": "POST",
+      "url": "http://localhost:3000/api/auth/login",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"admin@restaurante.ec\",\n  \"password\": \"password123\"\n}"
+      }
+    },
+    {
+      "_id": "req-02",
+      "name": "02 - Auth Login Mesero",
+      "method": "POST",
+      "url": "http://localhost:3000/api/auth/login",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"jperez@restaurante.ec\",\n  \"password\": \"password123\"\n}"
+      }
+    },
+    {
+      "_id": "req-03",
+      "name": "03 - Listar Platos (Público)",
+      "method": "GET",
+      "url": "http://localhost:3000/api/platos"
+    },
+    {
+      "_id": "req-04",
+      "name": "04 - Listar Platos por Categoría 2 (Sopas)",
+      "method": "GET",
+      "url": "http://localhost:3000/api/platos?categoria=2"
+    },
+    {
+      "_id": "req-05",
+      "name": "05 - Obtener Plato por ID (ID: 1)",
+      "method": "GET",
+      "url": "http://localhost:3000/api/platos/1"
+    },
+    {
+      "_id": "req-06",
+      "name": "06 - Listar Categorías",
+      "method": "GET",
+      "url": "http://localhost:3000/api/categorias"
+    },
+    {
+      "_id": "req-07",
+      "name": "07 - Listar Mesas",
+      "method": "GET",
+      "url": "http://localhost:3000/api/mesas",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{TOKEN}}"
+        }
+      ]
+    },
+    {
+      "_id": "req-08",
+      "name": "08 - Crear Reserva de Mesa",
+      "method": "POST",
+      "url": "http://localhost:3000/api/reservas",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"nombre\": \"Edison Zambrano\",\n  \"cedula\": \"0709876543\",\n  \"telefono\": \"0981234567\",\n  \"email\": \"ezambrano@gmail.com\",\n  \"id_mesa\": 1,\n  \"fecha_hora\": \"2026-11-20 13:00:00\",\n  \"num_personas\": 2\n}"
+      }
+    },
+    {
+      "_id": "req-09",
+      "name": "09 - Crear Pedido Completo (Transacción Atómica)",
+      "method": "POST",
+      "url": "http://localhost:3000/api/pedidos",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{TOKEN}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"id_mesa\": 1,\n  \"id_cliente\": 1,\n  \"items\": [\n    { \"id_plato\": 1, \"cantidad\": 2 },\n    { \"id_plato\": 11, \"cantidad\": 1 }\n  ]\n}"
+      }
+    },
+    {
+      "_id": "req-10",
+      "name": "10 - Listar Pedidos",
+      "method": "GET",
+      "url": "http://localhost:3000/api/pedidos",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{TOKEN}}"
+        }
+      ]
+    },
+    {
+      "_id": "req-11",
+      "name": "11 - Consultar Pedido por ID (con detalles)",
+      "method": "GET",
+      "url": "http://localhost:3000/api/pedidos/1",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{TOKEN}}"
+        }
+      ]
+    },
+    {
+      "_id": "req-12",
+      "name": "12 - Actualizar Estado Pedido a Cocina",
+      "method": "PUT",
+      "url": "http://localhost:3000/api/pedidos/1/estado",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{TOKEN}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"estado\": \"en_cocina\"\n}"
+      }
+    },
+    {
+      "_id": "req-13",
+      "name": "13 - Cerrar Pedido y Cobrar (Ejecuta sp_cerrar_pedido)",
+      "method": "PUT",
+      "url": "http://localhost:3000/api/pedidos/10/estado",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{TOKEN}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"estado\": \"pagado\"\n}"
+      }
+    },
+    {
+      "_id": "req-14",
+      "name": "14 - Reporte Ventas Mensuales (Admin)",
+      "method": "GET",
+      "url": "http://localhost:3000/api/reportes/ventas-mensuales",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{TOKEN_ADMIN}}"
+        }
+      ]
+    },
+    {
+      "_id": "req-15",
+      "name": "15 - Reporte Platos Más Vendidos (Admin)",
+      "method": "GET",
+      "url": "http://localhost:3000/api/reportes/platos-top?limite=5",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{TOKEN_ADMIN}}"
+        }
+      ]
+    }
+  ]
+}

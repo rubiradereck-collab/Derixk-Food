@@ -1,0 +1,98 @@
+/* ============================================================================
+   ESTILOS DE LA PÁGINA ACERCA DE (ABOUT) - DERIXK FOOD
+   Estética Obsidian Black con toques Rojo Crimson y Amarillo Oro
+   ============================================================================ */
+
+.about-container {
+  min-height: calc(100vh - 75px);
+  background-color: #000000;
+  background-image: 
+    radial-gradient(circle at 80% 20%, rgba(230, 57, 70, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 20% 80%, rgba(255, 183, 3, 0.06) 0%, transparent 40%);
+}
+
+.about-badge {
+  background: rgba(18, 20, 28, 0.9);
+  border: 1px solid rgba(255, 183, 3, 0.35);
+  backdrop-filter: blur(8px);
+}
+
+.obsidian-card {
+  background: rgba(12, 14, 20, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  position: relative;
+}
+
+.obsidian-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+}
+
+.border-hover-red:hover {
+  border-color: rgba(230, 57, 70, 0.5) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 0 0 20px rgba(230, 57, 70, 0.2);
+}
+
+.border-hover-gold:hover {
+  border-color: rgba(255, 183, 3, 0.5) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 0 0 20px rgba(255, 183, 3, 0.2);
+}
+
+.border-hover-info:hover {
+  border-color: rgba(56, 189, 248, 0.5) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.2);
+}
+
+.card-glow-bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle, rgba(230, 57, 70, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.creator-avatar {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #1e2230 0%, #0c0e14 100%);
+  border: 2px solid rgba(255, 183, 3, 0.5);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(255, 183, 3, 0.2);
+}
+
+.dish-highlight-box {
+  background: rgba(20, 24, 34, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.dish-highlight-box:hover {
+  background: rgba(25, 30, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+.tech-icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+code {
+  color: #ffb703;
+  background: rgba(255, 183, 3, 0.12);
+  padding: 0.15rem 0.35rem;
+  border-radius: 6px;
+  font-size: 0.85em;
+}

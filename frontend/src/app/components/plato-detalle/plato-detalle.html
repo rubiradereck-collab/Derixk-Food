@@ -1,0 +1,102 @@
+<div class="container py-5" style="min-height: calc(100vh - 80px);">
+  @if (cargando) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-coral" role="status"></div>
+      <p class="text-secondary mt-2">Cargando detalles del plato...</p>
+    </div>
+  }
+
+  @if (!cargando && plato) {
+    <div class="row justify-content-center animate__animated animate__fadeIn">
+      <div class="col-lg-9">
+        @if (notificacion) {
+          <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fa-solid fa-check-circle me-2"></i> {{ notificacion }}
+          </div>
+        }
+
+        <div class="bg-pos-card rounded-4 shadow-lg overflow-hidden border border-secondary border-opacity-25">
+          <div class="row g-0">
+            <!-- Columna Izquierda: Imagen del plato -->
+            <div class="col-md-5 position-relative overflow-hidden" style="min-height: 280px;">
+              <img
+                [src]="plato.imagen"
+                [alt]="plato.nombre"
+                class="w-100 h-100"
+                style="object-fit: cover;"
+              />
+              <span class="badge position-absolute top-0 start-0 m-3 px-3 py-2 rounded-pill"
+                style="background-color: rgba(31, 29, 43, 0.85); color: #ea736d; border: 1px solid rgba(234, 115, 109, 0.5);">
+                {{ plato.categoria | uppercase }}
+              </span>
+            </div>
+
+            <!-- Columna Derecha: Información y controles -->
+            <div class="col-md-7 p-4 p-md-5 d-flex flex-column justify-content-between">
+              <div>
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h2 class="fw-bold text-white mb-0">{{ plato.nombre }}</h2>
+                  <span class="fs-2 fw-bold text-coral">
+                    {{ plato.precio | currency:'USD':'symbol':'1.2-2' }}
+                  </span>
+                </div>
+
+                <div class="mb-3">
+                  @if (plato.stock > 0) {
+                    <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 px-3 py-1">
+                      <i class="fa-solid fa-boxes-stacked me-1"></i> Stock: {{ plato.stock }} porciones disponibles
+                    </span>
+                  } @else {
+                    <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-50 px-3 py-1">
+                      <i class="fa-solid fa-circle-xmark me-1"></i> Agotado por hoy
+                    </span>
+                  }
+                </div>
+
+                <h6 class="text-secondary fw-semibold mt-4">Descripción e Ingredientes:</h6>
+                <p class="text-white-50 lead fs-6">
+                  {{ plato.descripcion }}
+                </p>
+              </div>
+
+              <!-- Selector de cantidad y botones -->
+              <div class="pt-4 border-top border-secondary border-opacity-25">
+                @if (plato.stock > 0) {
+                  <div class="d-flex align-items-center gap-3 mb-4">
+                    <span class="fw-semibold text-secondary small">Porciones:</span>
+                    <div class="d-flex align-items-center gap-2 bg-dark rounded-3 px-2 py-1" style="border: 1px solid rgba(255,255,255,0.1);">
+                      <button class="btn btn-sm text-secondary px-2 border-0" type="button" (click)="decrementar()">
+                        <i class="fa-solid fa-minus"></i>
+                      </button>
+                      <span class="text-white fw-bold px-2">{{ cantidad }}</span>
+                      <button class="btn btn-sm text-secondary px-2 border-0" type="button" (click)="incrementar()">
+                        <i class="fa-solid fa-plus"></i>
+                      </button>
+                    </div>
+                    <span class="text-secondary small ms-auto">
+                      Subtotal: <strong class="text-white fs-6">{{ (cantidad * plato.precio) | currency:'USD':'symbol':'1.2-2' }}</strong>
+                    </span>
+                  </div>
+                }
+
+                <div class="d-flex gap-3">
+                  <button type="button" class="btn btn-outline-pos px-4" (click)="regresar()">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Menú
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-coral px-4 flex-grow-1 shadow-sm d-flex align-items-center justify-content-center gap-2"
+                    [disabled]="plato.stock <= 0"
+                    (click)="agregarAlCarrito()"
+                  >
+                    <i class="fa-solid fa-cart-shopping"></i> Añadir a la Comanda
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

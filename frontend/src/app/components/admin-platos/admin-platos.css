@@ -1,0 +1,4 @@
+/* Estilos específicos de admin platos */
+.table th, .table td {
+  vertical-align: middle;
+}

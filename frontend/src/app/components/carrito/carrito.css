@@ -1,0 +1,4 @@
+/* Estilos específicos de carrito */
+.table th, .table td {
+  vertical-align: middle;
+}

@@ -1,0 +1,132 @@
+<div class="container py-4" style="min-height: calc(100vh - 80px);">
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-25">
+    <div>
+      <h3 class="fw-bold text-white mb-1">
+        <i class="fa-solid fa-sliders text-coral me-2"></i> Gestión Administrativa de Platos
+      </h3>
+      <small class="text-secondary">Control total del catálogo culinario, inventario y actualización de precios (auditados en BD).</small>
+    </div>
+    <button class="btn btn-coral btn-sm px-3 py-2" (click)="iniciarNuevo()">
+      <i class="fa-solid fa-plus me-1"></i> Nuevo Plato
+    </button>
+  </div>
+
+  @if (mensajeExito) {
+    <div class="alert alert-success py-2 px-3 small rounded-3 mb-3 animate__animated animate__fadeIn">
+      <i class="fa-solid fa-circle-check me-1"></i> {{ mensajeExito }}
+    </div>
+  }
+
+  @if (mensajeError) {
+    <div class="alert alert-danger py-2 px-3 small rounded-3 mb-3 animate__animated animate__fadeIn">
+      <i class="fa-solid fa-triangle-exclamation me-1"></i> {{ mensajeError }}
+    </div>
+  }
+
+  <!-- Formulario de Creación / Edición -->
+  <div class="bg-pos-card rounded-4 p-4 mb-4 border border-secondary border-opacity-25 shadow-sm">
+    <h5 class="fw-bold text-white mb-3">
+      {{ modoEdicion ? '✏️ Editar Plato #' + idPlatoEditando : '✨ Registrar Nuevo Plato en Catálogo' }}
+    </h5>
+
+    <form (ngSubmit)="guardarPlato()" #platoForm="ngForm">
+      <div class="row g-3">
+        <div class="col-md-5">
+          <label class="form-label text-secondary small fw-semibold">Nombre del Plato *</label>
+          <input type="text" class="form-control" name="nombre" [(ngModel)]="nombre" required placeholder="Ej. Cazuela de Mariscos" />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label text-secondary small fw-semibold">Categoría *</label>
+          <select class="form-select" name="idCategoria" [(ngModel)]="idCategoria" required>
+            <option [ngValue]="null">-- Seleccione --</option>
+            @for (cat of categorias; track cat.id_categoria) {
+              <option [ngValue]="cat.id_categoria">{{ cat.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label text-secondary small fw-semibold">Precio ($ USD) *</label>
+          <input type="number" step="0.25" min="0.5" class="form-control" name="precio" [(ngModel)]="precio" required />
+        </div>
+
+        <div class="col-md-8">
+          <label class="form-label text-secondary small fw-semibold">Descripción e Ingredientes</label>
+          <input type="text" class="form-control" name="descripcion" [(ngModel)]="descripcion" placeholder="Ingredientes y notas..." />
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label text-secondary small fw-semibold">Stock Diario *</label>
+          <input type="number" min="0" class="form-control" name="stock" [(ngModel)]="stock" required />
+        </div>
+
+        <div class="col-md-2 d-flex align-items-center pt-4">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" name="disponible" id="dispCheck" [(ngModel)]="disponible" />
+            <label class="form-check-label text-secondary small fw-semibold" for="dispCheck">Disponible</label>
+          </div>
+        </div>
+
+        <div class="col-12 text-end">
+          @if (modoEdicion) {
+            <button type="button" class="btn btn-outline-pos btn-sm me-2 px-3" (click)="iniciarNuevo()">
+              Cancelar
+            </button>
+          }
+          <button type="submit" class="btn btn-coral btn-sm px-4" [disabled]="platoForm.invalid || guardando">
+            <i class="fa-solid fa-floppy-disk me-1"></i>
+            {{ modoEdicion ? 'Actualizar (Auditar)' : 'Guardar en Catálogo' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tabla de Platos Existentes -->
+  <div class="bg-pos-card rounded-4 overflow-hidden border border-secondary border-opacity-25 shadow-sm">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th class="text-end">Precio</th>
+            <th class="text-center">Stock</th>
+            <th class="text-center">Estado</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of platos; track p.id_plato) {
+            <tr>
+              <td class="text-secondary small">#{{ p.id_plato }}</td>
+              <td class="fw-bold text-white">{{ p.nombre }}</td>
+              <td><span class="badge bg-dark text-secondary border border-secondary border-opacity-25">{{ p.categoria }}</span></td>
+              <td class="text-end fw-semibold text-coral">{{ p.precio | currency:'USD':'symbol':'1.2-2' }}</td>
+              <td class="text-center">
+                <span class="badge" [ngClass]="p.stock > 5 ? 'bg-success bg-opacity-25 text-success' : (p.stock > 0 ? 'bg-warning bg-opacity-25 text-warning' : 'bg-danger bg-opacity-25 text-danger')">
+                  {{ p.stock }} porc.
+                </span>
+              </td>
+              <td class="text-center">
+                <span class="badge" [ngClass]="p.disponible ? 'bg-success bg-opacity-25 text-success' : 'bg-danger bg-opacity-25 text-danger'">
+                  {{ p.disponible ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="text-center">
+                <button class="btn btn-sm btn-outline-pos me-1 py-1 px-2" (click)="editarPlato(p)" title="Editar Plato">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger py-1 px-2" (click)="eliminarPlato(p)" title="Eliminar Plato">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

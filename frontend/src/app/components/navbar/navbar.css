@@ -1,0 +1,135 @@
+/* ============================================================================
+   ESTILOS CINEMÁTICOS DE NAVBAR - DERIXK FOOD
+   ============================================================================ */
+
+.cinematic-navbar {
+  background: rgba(0, 0, 0, 0.95) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
+  transition: all 0.3s ease;
+}
+
+/* Brand logo AI emblem */
+.brand-logo-img {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 183, 3, 0.45);
+  box-shadow: 0 0 15px rgba(230, 57, 70, 0.45);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.brand-logo-img:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 22px rgba(255, 183, 3, 0.7);
+}
+
+.logo-text {
+  letter-spacing: -0.5px;
+}
+
+.text-glow-gold {
+  color: #ffb703 !important;
+  text-shadow: 0 0 12px rgba(255, 183, 3, 0.6);
+}
+
+.text-glow-red {
+  color: #e63946 !important;
+  text-shadow: 0 0 10px rgba(230, 57, 70, 0.5);
+}
+
+.logo-subtext {
+  color: #9ca3af;
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+
+/* Enlaces de navegación */
+.nav-link {
+  transition: all 0.25s ease;
+  font-size: 0.9rem;
+  color: #9ca3af !important;
+  border-radius: 10px;
+  white-space: nowrap !important;
+  padding-left: 0.65rem !important;
+  padding-right: 0.65rem !important;
+}
+
+.nav-link:hover {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+}
+
+.active-nav {
+  background: linear-gradient(135deg, rgba(230, 57, 70, 0.9) 0%, rgba(200, 30, 50, 0.9) 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 15px rgba(230, 57, 70, 0.45);
+}
+
+/* Botón Comanda (outlined in red) */
+.btn-comanda-red {
+  background: rgba(230, 57, 70, 0.08);
+  border: 1.5px solid #e63946 !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 12px rgba(230, 57, 70, 0.25);
+  white-space: nowrap !important;
+}
+
+.btn-comanda-red:hover {
+  background: rgba(230, 57, 70, 0.25) !important;
+  border-color: #ff4d5e !important;
+  box-shadow: 0 0 20px rgba(230, 57, 70, 0.6);
+  transform: translateY(-1px);
+}
+
+.badge-comanda-count {
+  background: linear-gradient(135deg, #e63946 0%, #ffb703 100%) !important;
+  color: #ffffff;
+  font-size: 0.72rem;
+  box-shadow: 0 0 8px rgba(230, 57, 70, 0.8);
+}
+
+/* Administrador General Tag */
+.admin-tag-pill {
+  background: rgba(22, 25, 34, 0.85);
+  border: 1px solid rgba(255, 183, 3, 0.4);
+  color: #f3f4f6;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.45rem 0.85rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0 0 10px rgba(255, 183, 3, 0.15);
+  transition: all 0.2s ease;
+  white-space: nowrap !important;
+}
+
+.admin-tag-pill:hover {
+  border-color: #ffb703;
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(255, 183, 3, 0.35);
+}
+
+.btn-logout {
+  background: transparent;
+  border: 1px solid rgba(230, 57, 70, 0.4);
+  color: #e63946;
+  border-radius: 8px;
+  padding: 0.35rem 0.6rem;
+  transition: all 0.2s ease;
+}
+
+.btn-logout:hover {
+  background: #e63946;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(230, 57, 70, 0.5);
+}

@@ -1,0 +1,29 @@
+<app-navbar></app-navbar>
+
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="cinematic-footer py-4 border-top border-secondary border-opacity-10 text-center">
+  <div class="container">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 small text-secondary">
+      <div class="d-flex align-items-center gap-2">
+        <img
+          src="assets/img/derixk-food-logo.jpg"
+          alt="Derixk Food"
+          class="rounded-2 shadow-sm"
+          style="width: 28px; height: 28px; object-fit: cover; border: 1px solid rgba(255, 183, 3, 0.4);"
+        />
+        <span class="fw-bold text-white">Derixk Food</span> &bull; Sistema POS & Restaurante Tradicional
+      </div>
+      <div>
+        Desarrollado por <span class="text-white fw-semibold">Dereck Rubira</span> &bull; UTMACH 2026
+      </div>
+      <div class="d-flex gap-3">
+        <a [routerLink]="['/home']" class="footer-link">Inicio</a>
+        <a [routerLink]="['/menu']" class="footer-link">Menú POS</a>
+        <a [routerLink]="['/about']" class="footer-link">Acerca de</a>
+      </div>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,21 @@
+.main-content {
+  min-height: calc(100vh - 135px);
+  background-color: #000000;
+}
+
+.cinematic-footer {
+  background-color: #06070a;
+  color: #9ca3af;
+  position: relative;
+  z-index: 10;
+}
+
+.footer-link {
+  color: #9ca3af;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+  color: #ff384c;
+}

@@ -1,0 +1,4 @@
+/* Estilos específicos de reservas */
+.table th, .table td {
+  vertical-align: middle;
+}

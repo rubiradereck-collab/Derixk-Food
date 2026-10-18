@@ -1,0 +1,246 @@
+/* ============================================================================
+   ESTILOS MODERNOS JET BLACK HERO - DERIXK FOOD
+   Fondo negro puro (#000000), sin tonos marrones, showcase rectangular moderno
+   ============================================================================ */
+
+.pure-black-home-container {
+  min-height: calc(100vh - 75px);
+  background-color: #000000 !important;
+  color: #ffffff;
+}
+
+/* Logo y Badge superior en Hero */
+.hero-logo-emblem {
+  width: 58px;
+  height: 58px;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 1.5px solid rgba(255, 183, 3, 0.5);
+  box-shadow: 0 0 20px rgba(230, 57, 70, 0.4), inset 0 0 10px rgba(255, 183, 3, 0.2);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+}
+
+.hero-logo-emblem:hover {
+  transform: scale(1.1) rotate(-3deg);
+  box-shadow: 0 0 30px rgba(255, 183, 3, 0.8);
+}
+
+.modern-badge {
+  background: rgba(18, 20, 26, 0.95);
+  border: 1px solid rgba(230, 57, 70, 0.4);
+  color: #f3f4f6;
+}
+
+.badge-dot-red {
+  width: 7px;
+  height: 7px;
+  background-color: #e63946;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #e63946;
+}
+
+/* Título */
+.hero-main-title {
+  font-size: clamp(2.3rem, 4.8vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -1px;
+}
+
+.brand-glow-red {
+  color: #ff384c !important;
+  text-shadow: 0 0 20px rgba(255, 56, 76, 0.7);
+  display: inline-block;
+}
+
+.hero-description {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #cbd5e1 !important;
+  max-width: 540px;
+}
+
+/* Botones */
+.btn-hero-primary {
+  background: linear-gradient(135deg, #e63946 0%, #c1121f 100%);
+  border: none;
+  color: #ffffff !important;
+  border-radius: 14px;
+  box-shadow: 0 0 20px rgba(230, 57, 70, 0.5);
+  transition: all 0.25s ease;
+}
+
+.btn-hero-primary:hover {
+  background: linear-gradient(135deg, #ff4d5e 0%, #d90429 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(230, 57, 70, 0.75);
+}
+
+.btn-hero-secondary {
+  background: #0c0d12;
+  border: 1.5px solid rgba(255, 183, 3, 0.55);
+  color: #ffffff !important;
+  border-radius: 14px;
+  transition: all 0.25s ease;
+}
+
+.btn-hero-secondary:hover {
+  background: rgba(230, 57, 70, 0.15);
+  border-color: #e63946;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px rgba(255, 183, 3, 0.3);
+}
+
+/* ================================================================= */
+/* SHOWCASE CULINARIO COMPLETO (RECTANGULAR, MODERNO, ROTATIVO) */
+/* ================================================================= */
+
+.modern-showcase-container {
+  background: #0a0b10;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
+}
+
+.modern-showcase-container:hover {
+  border-color: rgba(230, 57, 70, 0.4);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.95), 0 0 30px rgba(230, 57, 70, 0.18);
+}
+
+.showcase-image-frame {
+  width: 100%;
+  height: 340px;
+  overflow: hidden;
+  background-color: #050507;
+  position: relative;
+}
+
+.showcase-dish-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.modern-showcase-container:hover .showcase-dish-image {
+  transform: scale(1.04);
+}
+
+.showcase-image-gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 85px;
+  background: linear-gradient(to top, rgba(10, 11, 16, 0.98) 0%, rgba(10, 11, 16, 0.4) 50%, transparent 100%);
+  pointer-events: none;
+}
+
+.specialty-pill {
+  background: rgba(18, 20, 26, 0.88);
+  border: 1px solid #e63946;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+}
+
+/* Botones de navegación (anterior / siguiente) */
+.showcase-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(10, 11, 16, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: 5;
+  transition: all 0.2s ease;
+  opacity: 0.8;
+}
+
+.showcase-nav-btn:hover {
+  background: #e63946;
+  color: #ffffff;
+  opacity: 1;
+  border-color: #e63946;
+  box-shadow: 0 0 12px rgba(230, 57, 70, 0.6);
+}
+
+.showcase-nav-btn.prev-btn {
+  left: 14px;
+}
+
+.showcase-nav-btn.next-btn {
+  right: 14px;
+}
+
+/* Barra inferior del showcase */
+.showcase-bottom-bar {
+  background: #0a0b10;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Dots indicadores */
+.carousel-indicator-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  padding: 0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.carousel-indicator-dot.active {
+  background: #e63946;
+  width: 24px;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(230, 57, 70, 0.7);
+}
+
+/* ================================================================= */
+/* TRES TARJETAS DE CARACTERÍSTICAS INFERIORES */
+/* ================================================================= */
+
+.obsidian-feature-card {
+  background: #0a0b10;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: all 0.25s ease;
+}
+
+.obsidian-feature-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(230, 57, 70, 0.4);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(230, 57, 70, 0.15);
+}
+
+.feature-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-icon-box.red-accent {
+  background: rgba(230, 57, 70, 0.15);
+  color: #ff384c;
+}
+
+.feature-icon-box.gold-accent {
+  background: rgba(255, 183, 3, 0.15);
+  color: #ffb703;
+}

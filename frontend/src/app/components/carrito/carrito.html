@@ -1,0 +1,165 @@
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
+    <h2 class="fw-bold mb-0 text-white">
+      <i class="fa-solid fa-cart-shopping text-coral me-2"></i> Mi Pedido (Carrito POS)
+    </h2>
+    @if (carritoService.items().length > 0) {
+      <button class="btn btn-outline-danger btn-sm" (click)="carritoService.limpiarCarrito()">
+        <i class="fa-solid fa-trash me-1"></i> Vaciar Carrito
+      </button>
+    }
+  </div>
+
+  <!-- Alerta de Éxito Transaccional -->
+  @if (mensajeExito) {
+    <div class="alert alert-success shadow-sm p-4 text-center rounded-4 animate__animated animate__zoomIn">
+      <div class="fs-1 text-success mb-2"><i class="fa-solid fa-circle-check"></i></div>
+      <h4 class="fw-bold text-success">¡Pedido Procesado con Éxito!</h4>
+      <p class="mb-3">{{ mensajeExito }}</p>
+      <div class="d-flex justify-content-center gap-3">
+        <a [routerLink]="['/pedidos']" class="btn btn-coral rounded-pill px-4">
+          <i class="fa-solid fa-kitchen-set me-1"></i> Ver en Monitor de Cocina
+        </a>
+        <a [routerLink]="['/menu']" class="btn btn-outline-secondary rounded-pill px-4">
+          <i class="fa-solid fa-utensils me-1"></i> Seguir Ordenando
+        </a>
+      </div>
+    </div>
+  }
+
+  <!-- Alerta de Error / Excepción de Base de Datos -->
+  @if (mensajeError) {
+    <div class="alert alert-danger shadow-sm d-flex align-items-center rounded-3 mb-4 animate__animated animate__shakeX">
+      <i class="fa-solid fa-circle-exclamation fs-4 me-3"></i>
+      <div>
+        <strong>Transacción rechazada por el servidor:</strong>
+        <div>{{ mensajeError }}</div>
+      </div>
+    </div>
+  }
+
+  <!-- Contenido si hay platos en el carrito y no se acaba de confirmar con éxito -->
+  @if (!mensajeExito && carritoService.items().length > 0) {
+    <div class="row g-4">
+      <!-- Columna de Lista de Platos -->
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Plato</th>
+                  <th class="text-center" style="width: 140px;">Cantidad</th>
+                  <th class="text-end">Precio</th>
+                  <th class="text-end">Subtotal</th>
+                  <th class="text-center" style="width: 60px;">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of carritoService.items(); track item.plato.id_plato) {
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-bowl-food text-warning fs-5"></i>
+                        <div>
+                          <div class="fw-bold">{{ item.plato.nombre }}</div>
+                          <span class="badge bg-secondary-subtle text-secondary small">
+                            {{ item.plato.categoria }}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-center">
+                      <div class="input-group input-group-sm">
+                        <button class="btn btn-outline-secondary" type="button"
+                          (click)="carritoService.cambiarCantidad(item.plato.id_plato, item.cantidad - 1)">-</button>
+                        <input type="text" class="form-control text-center fw-bold" [value]="item.cantidad" readonly />
+                        <button class="btn btn-outline-secondary" type="button"
+                          [disabled]="item.cantidad >= item.plato.stock"
+                          (click)="carritoService.cambiarCantidad(item.plato.id_plato, item.cantidad + 1)">+</button>
+                      </div>
+                    </td>
+                    <td class="text-end text-muted">
+                      {{ item.plato.precio | currency:'USD':'symbol':'1.2-2' }}
+                    </td>
+                    <td class="text-end fw-bold text-primary">
+                      {{ item.subtotal | currency:'USD':'symbol':'1.2-2' }}
+                    </td>
+                    <td class="text-center">
+                      <button class="btn btn-sm btn-outline-danger" (click)="carritoService.removerPlato(item.plato.id_plato)">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna de Resumen y Asignación de Mesa -->
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-3 p-4">
+          <h5 class="fw-bold mb-3 border-bottom pb-2">Resumen de Comanda</h5>
+
+          <div class="d-flex justify-content-between mb-2 text-secondary">
+            <span>Total de porciones:</span>
+            <span class="fw-bold">{{ carritoService.cantidadTotal() }}</span>
+          </div>
+
+          <div class="d-flex justify-content-between fs-4 fw-bold text-dark my-3 pt-2 border-top">
+            <span>Total a Pagar:</span>
+            <span class="text-success">{{ carritoService.total() | currency:'USD':'symbol':'1.2-2' }}</span>
+          </div>
+
+          <!-- Selector de Mesa (Requerido para generar la comanda en BD) -->
+          @if (authService.isLoggedIn()) {
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Asignar a Mesa Física:</label>
+              <select class="form-select" [(ngModel)]="idMesaSeleccionada">
+                <option [ngValue]="null">-- Seleccione Mesa --</option>
+                @for (m of mesas; track m.id_mesa) {
+                  <option [ngValue]="m.id_mesa">
+                    Mesa #{{ m.numero }} (Capacidad: {{ m.capacidad }} pers. - {{ m.estado | uppercase }})
+                  </option>
+                }
+              </select>
+            </div>
+
+            <button
+              class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm"
+              [disabled]="cargando || !idMesaSeleccionada"
+              (click)="confirmarPedido()"
+            >
+              @if (cargando) {
+                <span class="spinner-border spinner-border-sm me-2"></span> Procesando Transacción...
+              } @else {
+                <i class="fa-solid fa-check-to-slot me-2"></i> Confirmar y Enviar a Cocina
+              }
+            </button>
+          } @else {
+            <div class="alert alert-warning small mb-3">
+              <i class="fa-solid fa-info-circle me-1"></i> Debe iniciar sesión como personal (mesero o admin) para registrar la orden en una mesa.
+            </div>
+            <a [routerLink]="['/login']" class="btn btn-dark w-100 py-2 rounded-pill fw-bold">
+              <i class="fa-solid fa-lock me-2"></i> Iniciar Sesión para Continuar
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Carrito Vacío -->
+  @if (!mensajeExito && carritoService.items().length === 0) {
+    <div class="text-center py-5">
+      <div class="text-muted mb-3" style="font-size: 70px;">🛒</div>
+      <h4 class="fw-bold text-secondary">Tu comanda está vacía</h4>
+      <p class="text-muted small">Aún no has agregado platos típicos a tu pedido.</p>
+      <a [routerLink]="['/menu']" class="btn btn-primary rounded-pill px-4 py-2 mt-2">
+        <i class="fa-solid fa-utensils me-1"></i> Ir al Menú Digital
+      </a>
+    </div>
+  }
+</div>

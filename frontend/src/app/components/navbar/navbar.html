@@ -1,0 +1,162 @@
+<nav class="navbar navbar-expand-xl sticky-top cinematic-navbar">
+  <div class="container-fluid px-3 px-xl-4">
+    <!-- Top-left logo "Derixk Food" with generated AI luxury emblem -->
+    <a class="navbar-brand d-flex align-items-center gap-2 py-1 text-decoration-none" [routerLink]="['/home']">
+      <img
+        src="assets/img/derixk-food-logo.jpg"
+        alt="Derixk Food Logo"
+        class="brand-logo-img shadow-lg"
+      />
+      <div class="d-flex flex-column">
+        <span class="fw-bold fs-5 text-white lh-1 tracking-tight logo-text">
+          Derixk <span class="text-glow-gold">Food</span>
+        </span>
+        <small class="logo-subtext">RESTAURANT &bull; UTMACH</small>
+      </div>
+    </a>
+
+    <!-- Botón hamburguesa responsive -->
+    <button
+      class="navbar-toggler border-0 text-white"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navContent"
+      aria-controls="navContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <i class="fa-solid fa-bars fs-4 text-light"></i>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navContent">
+      <!-- Menú central ordenado lógicamente -->
+      <ul class="navbar-nav mx-auto mb-2 mb-xl-0 gap-1 gap-xxl-2">
+        <!-- 1. Iniciar Sesión (primero si no está autenticado) -->
+        @if (!authService.isAuthenticated()) {
+          <li class="nav-item">
+            <a
+              class="nav-link px-3 py-2 rounded-3 text-secondary"
+              [routerLink]="['/login']"
+              routerLinkActive="active-nav text-white fw-semibold"
+            >
+              <i class="fa-solid fa-arrow-right-to-bracket me-1 text-warning"></i> Iniciar Sesión
+            </a>
+          </li>
+        }
+
+        <!-- 2. Inicio -->
+        <li class="nav-item">
+          <a
+            class="nav-link px-3 py-2 rounded-3 text-secondary"
+            [routerLink]="['/home']"
+            routerLinkActive="active-nav text-white fw-semibold"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            <i class="fa-solid fa-house me-1 text-glow-red"></i> Inicio
+          </a>
+        </li>
+
+        <!-- 3. Menú POS -->
+        <li class="nav-item">
+          <a
+            class="nav-link px-3 py-2 rounded-3 text-secondary"
+            [routerLink]="['/menu']"
+            routerLinkActive="active-nav text-white fw-semibold"
+          >
+            <i class="fa-solid fa-burger me-1 text-warning"></i> Menú POS
+          </a>
+        </li>
+
+        <!-- 4. Monitor de Cocina (para personal operativo) -->
+        @if (authService.isAuthenticated()) {
+          <li class="nav-item">
+            <a
+              class="nav-link px-3 py-2 rounded-3 text-secondary"
+              [routerLink]="['/pedidos']"
+              routerLinkActive="active-nav text-white fw-semibold"
+            >
+              <i class="fa-solid fa-kitchen-set me-1 text-warning"></i> Monitor Cocina
+            </a>
+          </li>
+        }
+
+        <!-- 5. Reservas de Mesas -->
+        <li class="nav-item">
+          <a
+            class="nav-link px-3 py-2 rounded-3 text-secondary"
+            [routerLink]="['/reservas']"
+            routerLinkActive="active-nav text-white fw-semibold"
+          >
+            <i class="fa-solid fa-calendar-check me-1 text-glow-red"></i> Reservas
+          </a>
+        </li>
+
+        <!-- 6. Módulos exclusivos de Administrador -->
+        @if (authService.hasRole(['administrador'])) {
+          <li class="nav-item">
+            <a
+              class="nav-link px-3 py-2 rounded-3 text-secondary"
+              [routerLink]="['/admin-platos']"
+              routerLinkActive="active-nav text-white fw-semibold"
+            >
+              <i class="fa-solid fa-sliders me-1 text-glow-red"></i> Admin Platos
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a
+              class="nav-link px-3 py-2 rounded-3 text-secondary"
+              [routerLink]="['/reportes']"
+              routerLinkActive="active-nav text-white fw-semibold"
+            >
+              <i class="fa-solid fa-chart-pie me-1 text-warning"></i> Reportes
+            </a>
+          </li>
+        }
+
+        <!-- 7. Acerca de -->
+        <li class="nav-item">
+          <a
+            class="nav-link px-3 py-2 rounded-3 text-secondary"
+            [routerLink]="['/about']"
+            routerLinkActive="active-nav text-white fw-semibold"
+          >
+            <i class="fa-solid fa-circle-info me-1 text-glow-red"></i> Acerca de
+          </a>
+        </li>
+      </ul>
+
+      <!-- Lado derecho: Mi Pedido (carrito) y Estado de Sesión -->
+      <div class="d-flex align-items-center gap-2 mt-3 mt-xl-0">
+        <!-- Botón Mi Pedido (carrito activo) -->
+        <a [routerLink]="['/carrito']" class="btn btn-comanda-red position-relative px-3 py-2" title="Ver pedido actual">
+          <i class="fa-solid fa-cart-shopping me-1 text-glow-red"></i>
+          <span>Mi Pedido</span>
+          @if (carritoService.cantidadTotal() > 0) {
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-comanda-count">
+              {{ carritoService.cantidadTotal() }}
+            </span>
+          }
+        </a>
+
+        <!-- Usuario Autenticado o Botón de Acceso -->
+        @if (authService.isAuthenticated()) {
+          <div class="admin-badge-container d-flex align-items-center gap-2 ps-2">
+            <span class="admin-tag-pill" [title]="'Rol: ' + (authService.currentUser()?.rol || '')">
+              <i class="fa-solid fa-user-check text-warning me-1"></i>
+              {{ authService.currentUser()?.nombre }}
+            </span>
+            <button class="btn btn-sm btn-logout" (click)="logout()" title="Cerrar Sesión">
+              <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+          </div>
+        } @else {
+          <a [routerLink]="['/login']" class="admin-tag-pill text-decoration-none">
+            <i class="fa-solid fa-lock text-warning me-1"></i>
+            <span>Acceso Personal</span>
+          </a>
+        }
+      </div>
+    </div>
+  </div>
+</nav>

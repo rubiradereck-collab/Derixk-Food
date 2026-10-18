@@ -1,0 +1,252 @@
+<div class="container-fluid px-3 px-xl-4 py-4 pos-menu-wrapper">
+  <div class="row g-4">
+    <!-- ================================================================= -->
+    <!-- COLUMNA PRINCIPAL (CENTRO/IZQUIERDA): CATÁLOGO DE PLATOS POS -->
+    <!-- ================================================================= -->
+    <div class="col-lg-8 col-xl-8 col-xxl-9">
+      <!-- Encabezado y Barra de Búsqueda -->
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+          <h3 class="fw-bold text-white mb-0">Derixk Food Restaurant</h3>
+          <small class="text-secondary">Machala, Ecuador &bull; Menú Tradicional Ecuatoriano</small>
+        </div>
+
+        <!-- Buscador estilo POS -->
+        <div class="position-relative" style="min-width: 280px; max-width: 360px;">
+          <input
+            type="text"
+            class="form-control rounded-pill ps-4 pe-5 py-2 text-white"
+            style="background-color: #0c0e14; border: 1px solid rgba(255,255,255,0.1);"
+            placeholder="Buscar plato (ej. Encebollado)..."
+            [(ngModel)]="textoBusqueda"
+            (keyup.enter)="buscarPlatos()"
+          />
+          <button
+            class="btn position-absolute top-50 end-0 translate-middle-y me-2 text-secondary border-0 p-1"
+            (click)="buscarPlatos()"
+          >
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Selector de Categorías (Pills con Iconos) -->
+      <div class="d-flex gap-2 pb-2 mb-3 overflow-x-auto text-nowrap">
+        <!-- Pestaña Todos -->
+        <button
+          type="button"
+          class="btn px-3 py-2 rounded-4 d-flex align-items-center gap-2 category-pill"
+          [class.active]="categoriaSeleccionada === undefined"
+          (click)="filtrarPorCategoria(undefined)"
+        >
+          <i class="fa-solid fa-utensils fs-6"></i>
+          <span class="small fw-semibold">Todos los Platos</span>
+        </button>
+
+        <!-- Categorías Dinámicas -->
+        @for (cat of categorias; track cat.id_categoria) {
+          <button
+            type="button"
+            class="btn px-3 py-2 rounded-4 d-flex align-items-center gap-2 category-pill"
+            [class.active]="categoriaSeleccionada === cat.id_categoria"
+            (click)="filtrarPorCategoria(cat.id_categoria)"
+          >
+            <i [class]="getIconoCategoria(cat.nombre) + ' fs-6'"></i>
+            <span class="small fw-semibold">{{ cat.nombre }}</span>
+          </button>
+        }
+      </div>
+
+      <!-- Notificación flotante rápida -->
+      @if (notificacion) {
+        <div class="alert alert-dark border-0 py-2 px-3 small text-white d-inline-flex align-items-center gap-2 rounded-pill shadow-sm mb-3 animate__animated animate__fadeIn"
+          style="background-color: rgba(45, 48, 62, 0.95); border: 1px solid #ea736d !important;">
+          <i class="fa-solid fa-circle-check text-coral"></i>
+          <span>{{ notificacion }} agregado a la comanda activa</span>
+        </div>
+      }
+
+      <!-- Grilla de Platos (Cards estilo POS) -->
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-3 row-cols-xxl-4 g-3">
+        @for (plato of platos; track plato.id_plato) {
+          <div class="col">
+            <div class="dish-card h-100 p-2 position-relative" (click)="agregarAlCarrito(plato)">
+              <!-- Contenedor de Imagen de Comida Real -->
+              <div class="dish-img-container rounded-3 mb-2">
+                <img
+                  [src]="plato.imagen"
+                  [alt]="plato.nombre"
+                  class="dish-img"
+                  loading="lazy"
+                  (error)="plato.imagen = 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=600&q=80'"
+                />
+                <!-- Badge de Categoría Flotante -->
+                <span class="badge position-absolute top-0 start-0 m-2 rounded-pill"
+                  style="background-color: rgba(31, 29, 43, 0.85); font-size: 0.65rem; color: #ea736d; border: 1px solid rgba(234, 115, 109, 0.4);">
+                  {{ (plato.categoria || 'TÍPICO') | uppercase }}
+                </span>
+
+                <!-- Botón Info Detalle -->
+                <a
+                  [routerLink]="['/plato', plato.id_plato]"
+                  (click)="$event.stopPropagation()"
+                  class="btn btn-sm btn-dark position-absolute top-0 end-0 m-2 rounded-circle p-1 d-flex align-items-center justify-content-center text-white"
+                  style="width: 28px; height: 28px; background: rgba(0,0,0,0.6);"
+                  title="Ver ingredientes y receta"
+                >
+                  <i class="fa-solid fa-circle-info" style="font-size: 0.75rem;"></i>
+                </a>
+              </div>
+
+              <!-- Información del Plato -->
+              <div class="d-flex flex-column flex-grow-1 px-1">
+                <h6 class="fw-semibold text-white mb-1 text-truncate" [title]="plato.nombre">
+                  {{ plato.nombre }}
+                </h6>
+
+                <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
+                  <span class="fs-5 fw-bold text-coral">
+                    {{ plato.precio | currency:'USD':'symbol':'1.2-2' }}
+                  </span>
+                  <span class="small text-muted" style="font-size: 0.75rem;">
+                    {{ plato.stock }} disp.
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- COLUMNA LATERAL DERECHA: PANEL DE COMANDA EN VIVO (ORDER PANEL) -->
+    <!-- Idéntico al panel 'Order - Table' de la referencia -->
+    <!-- ================================================================= -->
+    <div class="col-lg-4 col-xl-4 col-xxl-3">
+      <div class="p-4 rounded-4 shadow-sm position-sticky pos-order-panel" style="top: 80px;">
+        <!-- Encabezado de la Orden -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h4 class="fw-bold text-white mb-0">Order</h4>
+            <small class="text-secondary">Comanda Activa en Sala</small>
+          </div>
+
+          <!-- Selector de Mesa -->
+          <div style="width: 130px;">
+            <select class="form-select form-select-sm" [(ngModel)]="idMesaSeleccionada">
+              @for (m of mesas; track m.id_mesa) {
+                <option [value]="m.id_mesa">Mesa {{ m.numero }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- Mensajes de feedback -->
+        @if (mensajeExitoComanda) {
+          <div class="alert alert-success py-2 px-3 small rounded-3 mb-3 animate__animated animate__fadeIn">
+            <i class="fa-solid fa-circle-check me-1"></i> {{ mensajeExitoComanda }}
+          </div>
+        }
+        @if (mensajeErrorComanda) {
+          <div class="alert alert-danger py-2 px-3 small rounded-3 mb-3 animate__animated animate__fadeIn">
+            <i class="fa-solid fa-triangle-exclamation me-1"></i> {{ mensajeErrorComanda }}
+          </div>
+        }
+
+        <!-- Encabezados de Lista -->
+        <div class="d-flex justify-content-between text-secondary small pb-2 border-bottom" style="border-color: rgba(255,255,255,0.08) !important;">
+          <span>Item</span>
+          <div class="d-flex gap-4">
+            <span>Qty</span>
+            <span>Price</span>
+          </div>
+        </div>
+
+        <!-- Lista de Items en la Comanda (Scrollable) -->
+        <div class="overflow-y-auto pe-1 my-2" style="max-height: 280px;">
+          @if (carritoService.items().length === 0) {
+            <div class="text-center py-4 text-muted">
+              <i class="fa-solid fa-utensils fs-3 mb-2 opacity-50"></i>
+              <div class="small">Haz clic en cualquier plato para añadirlo a la comanda.</div>
+            </div>
+          }
+
+          @for (item of carritoService.items(); track item.plato.id_plato) {
+            <div class="d-flex align-items-center justify-content-between py-2 border-bottom" style="border-color: rgba(255,255,255,0.05) !important;">
+              <!-- Miniatura y Nombre -->
+              <div class="d-flex align-items-center gap-2" style="max-width: 150px;">
+                <img
+                  [src]="item.plato.imagen"
+                  class="rounded-3"
+                  style="width: 38px; height: 38px; object-fit: cover;"
+                />
+                <div class="text-truncate">
+                  <div class="text-white small fw-semibold text-truncate">{{ item.plato.nombre }}</div>
+                  <small class="text-muted" style="font-size: 0.7rem;">{{ item.plato.precio | currency:'USD':'symbol':'1.2-2' }}</small>
+                </div>
+              </div>
+
+              <!-- Controles de Cantidad y Precio -->
+              <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-1 bg-dark rounded-3 px-1 py-1" style="border: 1px solid rgba(255,255,255,0.1);">
+                  <button
+                    class="btn btn-sm text-secondary p-0 px-1 border-0"
+                    (click)="carritoService.cambiarCantidad(item.plato.id_plato, item.cantidad - 1)"
+                  >-</button>
+                  <span class="text-white small fw-bold px-1">{{ item.cantidad }}</span>
+                  <button
+                    class="btn btn-sm text-secondary p-0 px-1 border-0"
+                    [disabled]="item.cantidad >= item.plato.stock"
+                    (click)="carritoService.cambiarCantidad(item.plato.id_plato, item.cantidad + 1)"
+                  >+</button>
+                </div>
+
+                <div class="text-end fw-bold text-coral small" style="min-width: 50px;">
+                  {{ item.subtotal | currency:'USD':'symbol':'1.2-2' }}
+                </div>
+
+                <button class="btn btn-sm text-danger p-0 border-0" (click)="carritoService.removerPlato(item.plato.id_plato)">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Totales de la Orden -->
+        <div class="pt-3 border-top" style="border-color: rgba(255,255,255,0.08) !important;">
+          <div class="d-flex justify-content-between text-secondary small mb-1">
+            <span>Sub Total</span>
+            <span class="text-white">{{ carritoService.total() | currency:'USD':'symbol':'1.2-2' }}</span>
+          </div>
+
+          <div class="d-flex justify-content-between text-secondary small mb-2">
+            <span>IVA (15%)</span>
+            <span class="text-white">{{ (carritoService.total() * 0.15) | currency:'USD':'symbol':'1.2-2' }}</span>
+          </div>
+
+          <div class="d-flex justify-content-between text-white fs-5 fw-bold pt-2 border-top border-secondary border-opacity-25 mb-3">
+            <span>Total</span>
+            <span class="text-coral">{{ (carritoService.total() * 1.15) | currency:'USD':'symbol':'1.2-2' }}</span>
+          </div>
+
+          <!-- Botón de Acción Principal (Coral Red) -->
+          <button
+            type="button"
+            class="btn btn-coral w-100 py-3 shadow-sm d-flex align-items-center justify-content-center gap-2"
+            [disabled]="carritoService.items().length === 0 || procesandoPedido"
+            (click)="confirmarComanda()"
+          >
+            @if (procesandoPedido) {
+              <span class="spinner-border spinner-border-sm"></span> Procesando Transacción...
+            } @else {
+              <i class="fa-solid fa-receipt"></i>
+              <span>Confirmar Pedido (Cocina)</span>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,178 @@
+<div class="pure-black-home-container">
+  <div class="container py-4 py-lg-5" style="min-height: calc(100vh - 75px);">
+    <!-- ================================================================= -->
+    <!-- SECCIÓN HERO: TIPOGRAFÍA IZQUIERDA + SHOWCASE CULINARIO COMPLETO DERECHA -->
+    <!-- ================================================================= -->
+    <div class="row align-items-center g-4 g-xl-5 min-vh-75 py-2 py-lg-4">
+      <!-- Columna Izquierda: Tipografía y Botones -->
+      <div class="col-lg-6 text-center text-lg-start">
+        <!-- Tag de Cocina Criolla -->
+        <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill mb-3 modern-badge">
+          <span class="badge-dot-red"></span>
+          <i class="fa-solid fa-fire text-coral"></i>
+          <span class="small fw-semibold text-uppercase tracking-wider">Tradición Ecuatoriana &bull; Sabor Criollo</span>
+        </div>
+
+        <!-- Título Principal -->
+        <h1 class="hero-main-title text-white mb-3">
+          El Auténtico Sabor en <span class="brand-glow-red">Derixk Food</span>
+        </h1>
+
+        <!-- Texto Descriptivo -->
+        <p class="hero-description text-secondary mb-4">
+          Encebollado mixto con albacora fresca, bolones con queso manaba, ceviches marinados al instante y secos tradicionales.
+          Disfrute de la mejor cocina típica con comandos digitales en tiempo real y gestión transaccional en PostgreSQL.
+        </p>
+
+        <!-- Botones de Acción -->
+        <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-start gap-3 pt-1">
+          <a
+            [routerLink]="['/menu']"
+            class="btn btn-hero-primary px-4 py-3 d-flex align-items-center justify-content-center gap-2 text-decoration-none"
+          >
+            <i class="fa-solid fa-utensils fs-5 text-warning"></i>
+            <span class="fw-bold">Abrir Menú POS</span>
+          </a>
+
+          <a
+            [routerLink]="['/reservas']"
+            class="btn btn-hero-secondary px-4 py-3 d-flex align-items-center justify-content-center gap-2 text-decoration-none"
+          >
+            <i class="fa-solid fa-calendar-check fs-5 text-warning"></i>
+            <span class="fw-bold">Reservar Mesa</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Columna Derecha: Showcase Moderno Completo de Platos (Sin círculo, Imagen Completa) -->
+      <div class="col-lg-6">
+        <div class="modern-showcase-container shadow-2xl position-relative overflow-hidden">
+          <!-- Imagen Completa Panorámica del Plato Activo -->
+          <div class="showcase-image-frame position-relative">
+            <img
+              [src]="especialidades[indiceActual].imagen"
+              [alt]="especialidades[indiceActual].nombre"
+              class="showcase-dish-image"
+              (error)="platoFallback($event)"
+            />
+
+            <!-- Gradiente de sombra inferior integrado para legibilidad -->
+            <div class="showcase-image-gradient"></div>
+
+            <!-- Badge Superior Flotante: Categoría & Especialidad -->
+            <div class="position-absolute top-0 start-0 m-3 d-flex align-items-center gap-2 z-2">
+              <span class="badge rounded-pill px-3 py-2 specialty-pill shadow-sm">
+                <i class="fa-solid fa-award text-warning me-1"></i> Especialidad de la Casa
+              </span>
+              <span class="badge bg-black bg-opacity-75 text-secondary border border-secondary border-opacity-25 px-2 py-1 small rounded-pill">
+                <i class="fa-regular fa-clock me-1"></i> {{ especialidades[indiceActual].tiempo }}
+              </span>
+            </div>
+
+            <!-- Botones de navegación Anterior / Siguiente -->
+            <button
+              class="btn showcase-nav-btn prev-btn"
+              type="button"
+              (click)="anteriorPlato()"
+              aria-label="Plato anterior"
+            >
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button
+              class="btn showcase-nav-btn next-btn"
+              type="button"
+              (click)="siguientePlato()"
+              aria-label="Siguiente plato"
+            >
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+
+          <!-- Barra de Información Integrada en la Parte Inferior del Showcase -->
+          <div class="showcase-bottom-bar p-3 p-md-4">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-2">
+              <div>
+                <span class="text-coral small fw-semibold text-uppercase tracking-wider">
+                  {{ especialidades[indiceActual].categoria }}
+                </span>
+                <h4 class="fw-bold text-white mb-0">{{ especialidades[indiceActual].nombre }}</h4>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="fs-4 fw-bold text-warning">
+                  {{ especialidades[indiceActual].precio | currency:'USD':'symbol':'1.2-2' }}
+                </span>
+                <a
+                  [routerLink]="['/menu']"
+                  class="btn btn-sm btn-coral px-3 py-2 rounded-3 text-nowrap d-flex align-items-center gap-1"
+                >
+                  <i class="fa-solid fa-plus"></i> Pedir
+                </a>
+              </div>
+            </div>
+
+            <p class="small text-secondary mb-3 lh-sm text-truncate" style="max-width: 95%;">
+              {{ especialidades[indiceActual].descripcion }}
+            </p>
+
+            <!-- Indicadores / Dots para alternar platos -->
+            <div class="d-flex align-items-center justify-content-center gap-2 pt-1 border-top border-secondary border-opacity-10">
+              @for (esp of especialidades; track esp.id; let i = $index) {
+                <button
+                  type="button"
+                  class="carousel-indicator-dot"
+                  [class.active]="i === indiceActual"
+                  (click)="seleccionarPlato(i)"
+                  [title]="esp.nombre"
+                ></button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- TRES TARJETAS DE CARACTERÍSTICAS INFERIORES (ESTILO OBSIDIAN BLACK) -->
+    <!-- ================================================================= -->
+    <div class="row g-4 mt-2 mt-lg-4 pb-4">
+      <!-- Tarjeta 1: Ingredientes Frescos -->
+      <div class="col-md-4">
+        <div class="obsidian-feature-card p-4 rounded-4 h-100 shadow-lg">
+          <div class="feature-icon-box red-accent mb-3">
+            <i class="fa-solid fa-fish fs-4"></i>
+          </div>
+          <h5 class="fw-bold text-white mb-2">Ingredientes Frescos</h5>
+          <p class="text-secondary small mb-0 lh-base">
+            Mariscos seleccionados del golfo, albacora fresca del día y plátano verde manabita para una experiencia gastronómica inigualable.
+          </p>
+        </div>
+      </div>
+
+      <!-- Tarjeta 2: Atención Eficiente -->
+      <div class="col-md-4">
+        <div class="obsidian-feature-card p-4 rounded-4 h-100 shadow-lg">
+          <div class="feature-icon-box gold-accent mb-3">
+            <i class="fa-solid fa-bell-concierge fs-4"></i>
+          </div>
+          <h5 class="fw-bold text-white mb-2">Atención Eficiente</h5>
+          <p class="text-secondary small mb-0 lh-base">
+            Comandas digitales enviadas al instante al monitor de cocina con procesamiento transaccional ACID e inventario sincronizado.
+          </p>
+        </div>
+      </div>
+
+      <!-- Tarjeta 3: Mesas Garantizadas -->
+      <div class="col-md-4">
+        <div class="obsidian-feature-card p-4 rounded-4 h-100 shadow-lg">
+          <div class="feature-icon-box red-accent mb-3">
+            <i class="fa-solid fa-chair fs-4"></i>
+          </div>
+          <h5 class="fw-bold text-white mb-2">Mesas Garantizadas</h5>
+          <p class="text-secondary small mb-0 lh-base">
+            Sistema de reservas inteligente que previene solapamiento horario de 2 horas mediante triggers y bloqueos pesimistas en PostgreSQL.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

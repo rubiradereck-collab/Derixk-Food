@@ -1,0 +1,161 @@
+<div class="container py-4" style="min-height: calc(100vh - 80px);">
+  <div class="mb-4 pb-2 border-bottom border-secondary border-opacity-25">
+    <h3 class="fw-bold text-white mb-1">
+      <i class="fa-solid fa-calendar-check text-coral me-2"></i> Reserva de Mesas
+    </h3>
+    <small class="text-secondary">Planifica tu visita con anticipación sin esperas ni solapamientos de horario.</small>
+  </div>
+
+  <div class="row g-4">
+    <!-- Columna Izquierda: Formulario de Reserva -->
+    <div class="col-lg-5">
+      <div class="bg-pos-card rounded-4 p-4 shadow-sm border border-secondary border-opacity-25">
+        <h5 class="fw-bold text-white mb-3"><i class="fa-solid fa-pen-to-square me-2 text-warning"></i> Agendar Nueva Reserva</h5>
+
+        @if (mensajeExito) {
+          <div class="alert alert-success py-2 px-3 small rounded-3 mb-3 animate__animated animate__fadeIn">
+            <i class="fa-solid fa-circle-check me-1"></i> {{ mensajeExito }}
+          </div>
+        }
+
+        @if (mensajeError) {
+          <div class="alert alert-danger py-2 px-3 small rounded-3 mb-3 animate__animated animate__fadeIn">
+            <i class="fa-solid fa-triangle-exclamation me-1"></i> {{ mensajeError }}
+          </div>
+        }
+
+        <form (ngSubmit)="crearReserva()" #reservaForm="ngForm">
+          <div class="mb-3">
+            <label class="form-label text-secondary small fw-semibold">Nombre Completo *</label>
+            <input type="text" class="form-control" name="nombre" [(ngModel)]="nombre" required placeholder="Ej. Carlos Mendoza" />
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-md-6">
+              <label class="form-label text-secondary small fw-semibold">Cédula Ecuatoriana *</label>
+              <input type="text" class="form-control" name="cedula" [(ngModel)]="cedula" required maxlength="10" placeholder="0701234567" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-secondary small fw-semibold">Teléfono Celular</label>
+              <input type="text" class="form-control" name="telefono" [(ngModel)]="telefono" placeholder="0987654321" />
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-secondary small fw-semibold">Correo Electrónico</label>
+            <input type="email" class="form-control" name="email" [(ngModel)]="email" placeholder="cliente@correo.ec" />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-secondary small fw-semibold">Seleccionar Mesa *</label>
+            <select class="form-select" name="idMesa" [(ngModel)]="idMesa" required>
+              <option [ngValue]="null">-- Seleccione una mesa --</option>
+              @for (m of mesas; track m.id_mesa) {
+                <option [ngValue]="m.id_mesa">
+                  Mesa #{{ m.numero }} — Capacidad: {{ m.capacidad }} personas
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="row g-2 mb-4">
+            <div class="col-md-7">
+              <label class="form-label text-secondary small fw-semibold">Fecha y Hora *</label>
+              <input type="datetime-local" class="form-control" name="fechaHora" [(ngModel)]="fechaHora" required />
+            </div>
+            <div class="col-md-5">
+              <label class="form-label text-secondary small fw-semibold">Personas *</label>
+              <input type="number" class="form-control" name="numPersonas" [(ngModel)]="numPersonas" min="1" max="15" required />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-coral w-100 py-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2"
+            [disabled]="reservaForm.invalid || cargando"
+          >
+            @if (cargando) {
+              <span class="spinner-border spinner-border-sm"></span> Verificando disponibilidad...
+            } @else {
+              <i class="fa-solid fa-calendar-plus"></i> Confirmar Reserva
+            }
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Columna Derecha: Disponibilidad de Mesas y Reservas Activas -->
+    <div class="col-lg-7">
+      <div class="bg-pos-card rounded-4 p-4 shadow-sm border border-secondary border-opacity-25 mb-4">
+        <h5 class="fw-bold text-white mb-3"><i class="fa-solid fa-chair me-2 text-coral"></i> Estado Actual de Mesas en Salón</h5>
+        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-5 g-2">
+          @for (m of mesas; track m.id_mesa) {
+            <div class="col">
+              <div
+                class="rounded-3 p-2 text-center border"
+                [ngClass]="{
+                  'bg-dark text-success border-success border-opacity-50': m.estado === 'libre',
+                  'bg-dark text-danger border-danger border-opacity-50': m.estado === 'ocupada',
+                  'bg-dark text-warning border-warning border-opacity-50': m.estado === 'reservada'
+                }"
+              >
+                <div class="fw-bold">Mesa {{ m.numero }}</div>
+                <div class="small text-secondary">{{ m.capacidad }} asientos</div>
+                <span class="badge text-uppercase mt-1"
+                  [ngClass]="{
+                    'bg-success bg-opacity-25 text-success': m.estado === 'libre',
+                    'bg-danger bg-opacity-25 text-danger': m.estado === 'ocupada',
+                    'bg-warning bg-opacity-25 text-warning': m.estado === 'reservada'
+                  }">
+                  {{ m.estado }}
+                </span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      @if (authService.isLoggedIn()) {
+        <div class="bg-pos-card rounded-4 p-4 shadow-sm border border-secondary border-opacity-25">
+          <h5 class="fw-bold text-white mb-3"><i class="fa-solid fa-list-check me-2 text-info"></i> Agenda de Reservas</h5>
+          <div class="table-responsive">
+            <table class="table align-middle small mb-0">
+              <thead>
+                <tr>
+                  <th>Fecha y Hora</th>
+                  <th>Mesa</th>
+                  <th>Cliente</th>
+                  <th>Personas</th>
+                  <th>Estado</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (r of reservas; track r.id_reserva) {
+                  <tr>
+                    <td class="text-white">{{ r.fecha_hora | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td class="fw-bold text-coral">Mesa #{{ r.numero_mesa }}</td>
+                    <td class="text-white">{{ r.nombre_cliente }}</td>
+                    <td class="text-secondary">{{ r.num_personas }} pers.</td>
+                    <td>
+                      <span class="badge" [ngClass]="r.estado === 'confirmada' ? 'bg-success bg-opacity-25 text-success' : 'bg-secondary'">
+                        {{ r.estado }}
+                      </span>
+                    </td>
+                    <td>
+                      @if (r.estado === 'confirmada') {
+                        <button class="btn btn-sm btn-outline-danger p-1 px-2 rounded-2" (click)="cancelarReserva(r.id_reserva)">
+                          <i class="fa-solid fa-xmark"></i>
+                        </button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

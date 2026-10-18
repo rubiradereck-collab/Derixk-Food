@@ -1,0 +1,7 @@
+/* Estilos específicos de comandas y pedidos */
+.transition {
+  transition: all 0.2s ease-in-out;
+}
+.transition:hover {
+  transform: scale(1.01);
+}

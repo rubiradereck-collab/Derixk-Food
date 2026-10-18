@@ -1,0 +1,132 @@
+<div class="container py-4" style="min-height: calc(100vh - 80px);">
+  <div class="mb-4 pb-2 border-bottom border-secondary border-opacity-25">
+    <h3 class="fw-bold text-white mb-1">
+      <i class="fa-solid fa-chart-pie text-coral me-2"></i> Reportes Analíticos de Ventas y Demanda
+    </h3>
+    <small class="text-secondary">Información computada directamente a través de las vistas SQL en PostgreSQL (v_ventas_por_mes y v_platos_mas_vendidos).</small>
+  </div>
+
+  @if (cargando) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-coral" role="status"></div>
+      <p class="text-secondary small mt-2">Consultando vistas en PostgreSQL...</p>
+    </div>
+  }
+
+  @if (!cargando) {
+    <!-- Tarjetas de Métricas Clave (KPIs) -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="kpi-card rounded-4 p-4 shadow-lg">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <span class="small text-secondary fw-semibold">Recaudación Total Cobrada</span>
+              <h2 class="fw-bold text-coral mb-0 mt-1">{{ totalRecaudadoGeneral | currency:'USD':'symbol':'1.2-2' }}</h2>
+            </div>
+            <div class="p-3 rounded-circle" style="background-color: rgba(230, 57, 70, 0.15); color: #e63946;">
+              <i class="fa-solid fa-sack-dollar fs-3"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="kpi-card rounded-4 p-4 shadow-lg">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <span class="small text-secondary fw-semibold">Comandas Pagadas</span>
+              <h2 class="fw-bold text-white mb-0 mt-1">{{ totalPedidosGeneral }} pedidos</h2>
+            </div>
+            <div class="p-3 rounded-circle" style="background-color: rgba(34, 197, 94, 0.15); color: #22c55e;">
+              <i class="fa-solid fa-receipt fs-3"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="kpi-card rounded-4 p-4 shadow-lg">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <span class="small text-secondary fw-semibold">Ticket Promedio por Mesa</span>
+              <h2 class="fw-bold text-warning mb-0 mt-1">{{ ticketPromedioGeneral | currency:'USD':'symbol':'1.2-2' }}</h2>
+            </div>
+            <div class="p-3 rounded-circle" style="background-color: rgba(255, 183, 3, 0.15); color: #ffb703;">
+              <i class="fa-solid fa-calculator fs-3"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Tabla 1: Platos Más Vendidos (v_platos_mas_vendidos) -->
+      <div class="col-lg-6">
+        <div class="table-obsidian-card rounded-4 p-4 shadow-lg h-100">
+          <h5 class="fw-bold text-white mb-3">
+            <i class="fa-solid fa-ranking-star text-warning me-2"></i> Ranking de Platos Más Vendidos
+          </h5>
+          <div class="table-responsive">
+            <table class="table align-middle small mb-0">
+              <thead>
+                <tr>
+                  <th>Plato</th>
+                  <th>Categoría</th>
+                  <th class="text-center">Porciones</th>
+                  <th class="text-end">Total Facturado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (p of platosTop; track p.id_plato) {
+                  <tr>
+                    <td class="fw-bold text-white">{{ p.nombre_plato }}</td>
+                    <td><span class="badge bg-dark text-secondary border border-secondary border-opacity-25">{{ p.categoria }}</span></td>
+                    <td class="text-center">
+                      <span class="badge rounded-pill px-2 py-1" style="background-color: rgba(234, 115, 109, 0.2); color: #ea736d;">
+                        {{ p.unidades_vendidas }}
+                      </span>
+                    </td>
+                    <td class="text-end fw-bold text-coral">
+                      {{ p.total_ingresos | currency:'USD':'symbol':'1.2-2' }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla 2: Consolidado Mensual (v_ventas_por_mes) -->
+      <div class="col-lg-6">
+        <div class="table-obsidian-card rounded-4 p-4 shadow-lg h-100">
+          <h5 class="fw-bold text-white mb-3">
+            <i class="fa-solid fa-calendar-days text-info me-2"></i> Facturación Mensual Consolidada
+          </h5>
+          <div class="table-responsive">
+            <table class="table align-middle small mb-0">
+              <thead>
+                <tr>
+                  <th>Periodo</th>
+                  <th class="text-center">Pedidos</th>
+                  <th class="text-end">Facturación</th>
+                  <th class="text-end">Ticket Prom.</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (v of ventasMensuales; track v.mes_anio) {
+                  <tr>
+                    <td class="fw-bold text-white">{{ v.mes_anio }}</td>
+                    <td class="text-center"><span class="badge bg-dark text-white">{{ v.total_pedidos }}</span></td>
+                    <td class="text-end fw-bold text-success">{{ v.total_facturado | currency:'USD':'symbol':'1.2-2' }}</td>
+                    <td class="text-end text-secondary">{{ v.ticket_promedio | currency:'USD':'symbol':'1.2-2' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

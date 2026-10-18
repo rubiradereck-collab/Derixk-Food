@@ -1,0 +1,174 @@
+<div class="container py-4" style="min-height: calc(100vh - 80px);">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom border-secondary border-opacity-25">
+    <div>
+      <h3 class="fw-bold text-white mb-1">
+        <i class="fa-solid fa-clipboard-list text-coral me-2"></i> Monitor de Comandas y Cocina
+      </h3>
+      <small class="text-secondary">Gestión de preparación, servicio y cierre de cuentas en tiempo real.</small>
+    </div>
+
+    <!-- Filtro por Estado -->
+    <div class="mt-3 mt-md-0 d-flex gap-2 align-items-center">
+      <span class="small fw-semibold text-secondary">Filtro:</span>
+      <select class="form-select form-select-sm" [(ngModel)]="filtroEstado" (change)="cargarPedidos()" style="width: 190px;">
+        <option value="">Todas las Comandas</option>
+        <option value="pendiente">En Espera</option>
+        <option value="en_cocina">En Cocina</option>
+        <option value="listo">Listos para Servir</option>
+        <option value="servido">Servidos en Mesa</option>
+        <option value="pagado">Pagados / Cerrados</option>
+      </select>
+    </div>
+  </div>
+
+  @if (mensajeExito) {
+    <div class="alert alert-success shadow-sm d-flex align-items-center mb-3 animate__animated animate__fadeIn">
+      <i class="fa-solid fa-circle-check fs-5 me-2"></i>
+      <div>{{ mensajeExito }}</div>
+    </div>
+  }
+
+  <div class="row g-4">
+    <!-- Columna Izquierda: Listado de Tarjetas de Pedido -->
+    <div class="col-lg-7">
+      @if (cargando) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-coral" role="status"></div>
+          <p class="text-secondary small mt-2">Consultando comandas en PostgreSQL...</p>
+        </div>
+      }
+
+      @if (!cargando && pedidos.length === 0) {
+        <div class="bg-pos-card p-5 rounded-4 text-center text-secondary">
+          <i class="fa-solid fa-inbox fs-1 mb-2 opacity-50"></i>
+          <h6>No hay comandas registradas en este estado.</h6>
+        </div>
+      }
+
+      @if (!cargando && pedidos.length > 0) {
+        <div class="d-flex flex-column gap-3">
+          @for (p of pedidos; track p.id_pedido) {
+            <div
+              class="bg-pos-card rounded-4 p-3 border transition shadow-sm"
+              [ngClass]="{
+                'border-warning': p.estado === 'pendiente',
+                'border-primary': p.estado === 'en_cocina',
+                'border-info': p.estado === 'listo',
+                'border-success': p.estado === 'servido',
+                'border-secondary opacity-75': p.estado === 'pagado'
+              }"
+            >
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <h5 class="fw-bold text-white mb-0">Comanda #{{ p.id_pedido }}</h5>
+                  <small class="text-secondary">
+                    <i class="fa-solid fa-chair me-1 text-coral"></i> Mesa #{{ p.numero_mesa }} &bull; Mesero: {{ p.mesero_responsable }}
+                  </small>
+                </div>
+                <!-- Pipe Personalizado estadoPedido -->
+                <span class="badge rounded-pill fs-6 px-3 py-2"
+                  [ngClass]="{
+                    'bg-warning text-dark': p.estado === 'pendiente',
+                    'bg-primary': p.estado === 'en_cocina',
+                    'bg-info text-dark': p.estado === 'listo',
+                    'bg-success': p.estado === 'servido',
+                    'bg-secondary': p.estado === 'pagado'
+                  }">
+                  {{ p.estado | estadoPedido }}
+                </span>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center text-secondary small my-2">
+                <span><i class="fa-regular fa-clock me-1"></i> {{ p.fecha_hora | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+                <span><i class="fa-solid fa-user me-1"></i> {{ p.nombre_cliente }}</span>
+                <span class="fw-bold text-coral fs-6">{{ p.total | currency:'USD':'symbol':'1.2-2' }}</span>
+              </div>
+
+              <!-- Botones de transición de estado -->
+              <div class="d-flex flex-wrap gap-2 mt-2 pt-2 border-top border-secondary border-opacity-25">
+                <button class="btn btn-sm btn-outline-pos" (click)="verDetallePedido(p.id_pedido)">
+                  <i class="fa-solid fa-eye me-1"></i> Ver Platos ({{ p.total_items }})
+                </button>
+
+                @if (p.estado === 'pendiente') {
+                  <button class="btn btn-sm btn-coral" (click)="cambiarEstado(p.id_pedido, 'en_cocina')">
+                    <i class="fa-solid fa-fire me-1"></i> Enviar a Cocina
+                  </button>
+                }
+
+                @if (p.estado === 'en_cocina') {
+                  <button class="btn btn-sm btn-info text-dark fw-bold" (click)="cambiarEstado(p.id_pedido, 'listo')">
+                    <i class="fa-solid fa-bell me-1"></i> Listo para Servir
+                  </button>
+                }
+
+                @if (p.estado === 'listo') {
+                  <button class="btn btn-sm btn-success" (click)="cambiarEstado(p.id_pedido, 'servido')">
+                    <i class="fa-solid fa-utensils me-1"></i> Servido en Mesa
+                  </button>
+                }
+
+                @if (p.estado === 'servido') {
+                  <button class="btn btn-sm btn-warning fw-bold text-dark" (click)="cambiarEstado(p.id_pedido, 'pagado')">
+                    <i class="fa-solid fa-cash-register me-1"></i> Cobrar y Liberar Mesa
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Columna Derecha: Detalle de Comanda Seleccionada -->
+    <div class="col-lg-5">
+      @if (pedidoSeleccionado) {
+        <div class="bg-pos-card rounded-4 p-4 shadow-lg position-sticky" style="top: 80px; border: 1px solid rgba(255,255,255,0.08);">
+          <div class="d-flex justify-content-between align-items-center mb-3 border-bottom border-secondary border-opacity-25 pb-2">
+            <h5 class="fw-bold text-white mb-0">Detalle Comanda #{{ pedidoSeleccionado.id_pedido }}</h5>
+            <span class="badge bg-secondary">{{ pedidoSeleccionado.estado | estadoPedido }}</span>
+          </div>
+
+          <p class="small text-secondary mb-3">
+            <strong class="text-white">Mesa:</strong> #{{ pedidoSeleccionado.numero_mesa }} &bull;
+            <strong class="text-white">Cliente:</strong> {{ pedidoSeleccionado.nombre_cliente }}<br>
+            <strong class="text-white">Hora:</strong> {{ pedidoSeleccionado.fecha_hora | date:'dd/MM/yyyy HH:mm' }}
+          </p>
+
+          <div class="table-responsive">
+            <table class="table table-sm align-middle mb-3">
+              <thead>
+                <tr>
+                  <th>Plato</th>
+                  <th class="text-center">Cant.</th>
+                  <th class="text-end">Unit.</th>
+                  <th class="text-end">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (d of pedidoSeleccionado.detalles; track d.id_detalle) {
+                  <tr>
+                    <td class="fw-semibold text-white">{{ d.nombre_plato }}</td>
+                    <td class="text-center">{{ d.cantidad }}</td>
+                    <td class="text-end text-secondary">{{ d.precio_unitario | currency:'USD':'symbol':'1.2-2' }}</td>
+                    <td class="text-end fw-bold text-coral">{{ d.subtotal | currency:'USD':'symbol':'1.2-2' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="d-flex justify-content-between fs-4 fw-bold border-top border-secondary border-opacity-25 pt-2">
+            <span class="text-white">Total:</span>
+            <span class="text-coral">{{ pedidoSeleccionado.total | currency:'USD':'symbol':'1.2-2' }}</span>
+          </div>
+        </div>
+      } @else {
+        <div class="bg-pos-card rounded-4 p-5 text-center text-secondary border border-secondary border-opacity-25">
+          <i class="fa-solid fa-receipt fs-1 mb-2 opacity-50"></i>
+          <h6>Selecciona una comanda para inspeccionar sus platos solicitados.</h6>
+        </div>
+      }
+    </div>
+  </div>
+</div>

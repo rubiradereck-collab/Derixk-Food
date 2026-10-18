@@ -1,0 +1,184 @@
+/* ============================================================================
+   TEMA OSCURO PREMIUM ESTILO POS (POINT OF SALE) - DERIXK FOOD
+   Inspirado en interfaces modernas de gestión de restaurantes (Pakecho / Toast POS)
+   ============================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg-dark: #000000;
+  --bg-card: #0c0e14;
+  --bg-surface: #141721;
+  --bg-input: #10121a;
+  --primary-red: #e63946;
+  --primary-red-glow: rgba(230, 57, 70, 0.6);
+  --primary-gold: #ffb703;
+  --primary-coral: #e63946;
+  --primary-coral-hover: #ff4d5e;
+  --accent-green: #22c55e;
+  --accent-yellow: #ffb703;
+  --text-main: #ffffff;
+  --text-muted: #94a3b8;
+  --text-secondary: #cbd5e1;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+}
+
+.text-glow-red {
+  color: #ff384c !important;
+  text-shadow: 0 0 16px rgba(255, 56, 76, 0.65);
+}
+
+.text-glow-gold {
+  color: #ffb703 !important;
+  text-shadow: 0 0 14px rgba(255, 183, 3, 0.6);
+}
+
+html, body {
+  background-color: var(--bg-dark) !important;
+  color: var(--text-main) !important;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Scrollbar estilizada */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: #393c49;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-coral);
+}
+
+/* Tarjetas y Contenedores */
+.bg-pos-dark {
+  background-color: var(--bg-dark) !important;
+}
+
+.bg-pos-card {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-subtle) !important;
+}
+
+.bg-pos-surface {
+  background-color: var(--bg-surface) !important;
+}
+
+.text-coral {
+  color: var(--primary-coral) !important;
+}
+
+.btn-coral {
+  background-color: var(--primary-coral) !important;
+  border-color: var(--primary-coral) !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-coral:hover {
+  background-color: var(--primary-coral-hover) !important;
+  border-color: var(--primary-coral-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(234, 115, 109, 0.35);
+}
+
+.btn-coral:disabled {
+  opacity: 0.6;
+  transform: none;
+}
+
+.btn-outline-pos {
+  background-color: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  border-radius: 12px;
+}
+
+.btn-outline-pos:hover, .btn-outline-pos.active {
+  background-color: rgba(234, 115, 109, 0.15);
+  border-color: var(--primary-coral);
+  color: var(--primary-coral);
+}
+
+/* Inputs oscuros */
+.form-control, .form-select {
+  background-color: var(--bg-input) !important;
+  border: 1px solid var(--border-subtle) !important;
+  color: #ffffff !important;
+  border-radius: 10px;
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: #353846 !important;
+  border-color: var(--primary-coral) !important;
+  box-shadow: 0 0 0 0.25rem rgba(234, 115, 109, 0.25) !important;
+  color: #ffffff !important;
+}
+
+.form-control::placeholder {
+  color: #6c727f !important;
+}
+
+/* Estilos de tablas oscuras */
+.table {
+  color: #ffffff !important;
+  border-color: var(--border-subtle) !important;
+}
+
+.table th {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-secondary) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+.table td {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+/* Estilos de tarjetas de platos */
+.dish-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 18px;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.dish-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(234, 115, 109, 0.4);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+.dish-img-container {
+  width: 100%;
+  height: 140px;
+  overflow: hidden;
+  position: relative;
+  background-color: var(--bg-surface);
+}
+
+.dish-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.dish-card:hover .dish-img {
+  transform: scale(1.08);
+}
