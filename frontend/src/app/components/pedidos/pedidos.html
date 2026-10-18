@@ -28,6 +28,13 @@
     </div>
   }
 
+  @if (mensajeError) {
+    <div class="alert alert-danger shadow-sm d-flex align-items-center mb-3 animate__animated animate__fadeIn">
+      <i class="fa-solid fa-triangle-exclamation fs-5 me-2"></i>
+      <div>{{ mensajeError }}</div>
+    </div>
+  }
+
   <div class="row g-4">
     <!-- Columna Izquierda: Listado de Tarjetas de Pedido -->
     <div class="col-lg-7">
@@ -93,6 +100,9 @@
                 @if (p.estado === 'pendiente') {
                   <button class="btn btn-sm btn-coral" (click)="cambiarEstado(p.id_pedido, 'en_cocina')">
                     <i class="fa-solid fa-fire me-1"></i> Enviar a Cocina
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="cambiarEstado(p.id_pedido, 'cancelado')" title="Libera la mesa y devuelve el stock">
+                    <i class="fa-solid fa-ban me-1"></i> Cancelar
                   </button>
                 }
 

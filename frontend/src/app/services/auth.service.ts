@@ -55,8 +55,17 @@ export class AuthService {
     }
   }
 
+  // Sesión válida = token presente Y no vencido (se lee el campo exp del JWT)
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    if (!token) return false;
+    try {
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const { exp } = JSON.parse(atob(base64)) as { exp?: number };
+      return !!exp && Date.now() < exp * 1000;
+    } catch {
+      return false;
+    }
   }
 
   hasRole(rolesPermitidos: string[]): boolean {

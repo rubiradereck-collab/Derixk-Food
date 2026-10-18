@@ -4,6 +4,7 @@
 // Demuestra el uso de transacciones ACID y procedimientos almacenados de PostgreSQL
 // ============================================================================
 const db = require('../config/db');
+const { HttpError } = require('../middlewares/errores');
 
 // GET /api/pedidos (Listado general de pedidos con estado y totales)
 const getPedidos = async (req, res) => {
@@ -131,154 +132,99 @@ const getPedidoById = async (req, res) => {
   }
 };
 
-// POST /api/pedidos (TRANSACCIÓN ATÓMICA CON CLIENTE DEL POOL)
-// Ejecuta BEGIN -> Inserción cabecera -> Inserción detalles (Triggers descuentan stock) -> COMMIT / ROLLBACK
+// POST /api/pedidos — Transacción ACID que reutiliza sp_registrar_pedido
 const createPedido = async (req, res) => {
-  const { id_cliente, id_mesa, items } = req.body;
-  const id_usuario = (req.usuario && req.usuario.id_usuario) ? req.usuario.id_usuario : 1; // Extraído del token JWT o Milton Valarezo por defecto
+  const { id_mesa, id_cliente = 1, items } = req.body;
 
-  if (!id_mesa || !items || !Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({
-      ok: false,
-      mensaje: 'Debe especificar la mesa y al menos un plato en la orden.',
-    });
+  if (!Number.isInteger(id_mesa) || !Array.isArray(items) || items.length === 0) {
+    throw new HttpError(400, 'Debe especificar la mesa y al menos un plato en la orden.');
   }
 
-  // Si no especifican cliente, se asigna por defecto el id_cliente 1 ("Consumidor Final")
-  const clienteFinalId = id_cliente || 1;
-
-  // Obtenemos un cliente dedicado del pool para controlar la transacción
-  const client = await db.pool.connect();
-
-  try {
-    await client.query('BEGIN'); // << INICIO DE TRANSACCIÓN ATÓMICA (ACID)
-
-    // 1. Validar estado de la mesa con bloqueo pesimista
-    const mesaQuery = 'SELECT estado FROM mesas WHERE id_mesa = $1 FOR UPDATE';
-    const mesaResult = await client.query(mesaQuery, [id_mesa]);
-
-    if (mesaResult.rowCount === 0) {
-      throw new Error(`La mesa #${id_mesa} no existe.`);
+  // Validar y agrupar ítems repetidos (evita violar uk_pedido_plato)
+  const cantidades = new Map();
+  for (const { id_plato, cantidad } of items) {
+    if (!Number.isInteger(id_plato) || !Number.isInteger(cantidad) || cantidad <= 0) {
+      throw new HttpError(400, 'Cada plato necesita un ID válido y una cantidad entera mayor a cero.');
     }
-
-    // 2. Insertar cabecera del pedido
-    const insertPedidoQuery = `
-      INSERT INTO pedidos (id_cliente, id_mesa, id_usuario, fecha_hora, estado, total)
-      VALUES ($1, $2, $3, CURRENT_TIMESTAMP, 'pendiente', 0.00)
-      RETURNING id_pedido
-    `;
-    const pedidoCreado = await client.query(insertPedidoQuery, [clienteFinalId, id_mesa, id_usuario]);
-    const idPedido = pedidoCreado.rows[0].id_pedido;
-
-    // 3. Cambiar estado de la mesa a 'ocupada'
-    await client.query("UPDATE mesas SET estado = 'ocupada' WHERE id_mesa = $1", [id_mesa]);
-
-    let totalAcumulado = 0;
-
-    // 4. Insertar cada línea de detalle
-    // Nota: El trigger 'trg_descontar_stock' en PostgreSQL validará stock y restará unidades
-    for (const item of items) {
-      const { id_plato, cantidad } = item;
-      if (!id_plato || !cantidad || cantidad <= 0) {
-        throw new Error('Todos los platos del pedido deben tener un ID válido y cantidad mayor a cero.');
-      }
-
-      // Consultar precio unitario del catálogo
-      const platoRes = await client.query('SELECT precio FROM platos WHERE id_plato = $1', [id_plato]);
-      if (platoRes.rowCount === 0) {
-        throw new Error(`El plato con ID ${id_plato} no existe.`);
-      }
-      const precioUnitario = parseFloat(platoRes.rows[0].precio);
-      const subtotal = precioUnitario * parseInt(cantidad, 10);
-      totalAcumulado += subtotal;
-
-      const insertDetalleQuery = `
-        INSERT INTO detalle_pedido (id_pedido, id_plato, cantidad, precio_unitario, subtotal)
-        VALUES ($1, $2, $3, $4, $5)
-      `;
-      await client.query(insertDetalleQuery, [idPedido, id_plato, parseInt(cantidad, 10), precioUnitario, subtotal]);
-    }
-
-    // 5. Actualizar el total definitivo en la cabecera del pedido
-    await client.query('UPDATE pedidos SET total = $1 WHERE id_pedido = $2', [totalAcumulado, idPedido]);
-
-    await client.query('COMMIT'); // << CONFIRMACIÓN DEFINITIVA DE LA TRANSACCIÓN
-
-    res.status(201).json({
-      ok: true,
-      mensaje: `Pedido #${idPedido} registrado con éxito bajo transacción atómica.`,
-      id_pedido: idPedido,
-      total: totalAcumulado,
-    });
-  } catch (error) {
-    await client.query('ROLLBACK'); // << REVERSIÓN EN CASO DE CUALQUIER FALLA
-    console.error('Rollback ejecutado en createPedido:', error.message);
-
-    // Si el error provino del RAISE EXCEPTION del trigger de stock:
-    const status = error.message.includes('Stock insuficiente') ? 400 : 500;
-    res.status(status).json({
-      ok: false,
-      mensaje: error.message || 'Error al procesar el pedido. Se aplicó ROLLBACK en la base de datos.',
-    });
-  } finally {
-    client.release(); // Liberar el cliente de regreso al pool
+    cantidades.set(id_plato, (cantidades.get(id_plato) || 0) + cantidad);
   }
+
+  const pedido = await db.withTransaction(req.usuario, async (client) => {
+    // 1. El SP bloquea la lógica de negocio: mesa existente y no ocupada
+    const { rows } = await client.query('CALL sp_registrar_pedido($1, $2, $3, NULL)', [
+      id_cliente,
+      id_mesa,
+      req.usuario.id_usuario, // siempre del token, nunca un valor por defecto
+    ]);
+    const idPedido = rows[0].p_id_pedido_creado;
+
+    // 2. Detalles: trg_descontar_stock fija precio, subtotal y descuenta stock (con FOR UPDATE)
+    for (const [idPlato, cantidad] of cantidades) {
+      await client.query(
+        'INSERT INTO detalle_pedido (id_pedido, id_plato, cantidad) VALUES ($1, $2, $3)',
+        [idPedido, idPlato, cantidad]
+      );
+    }
+
+    // 3. Total calculado en la BD, no en JavaScript
+    const total = await client.query(
+      `UPDATE pedidos
+       SET total = (SELECT SUM(subtotal) FROM detalle_pedido WHERE id_pedido = $1)
+       WHERE id_pedido = $1
+       RETURNING id_pedido, total`,
+      [idPedido]
+    );
+    return total.rows[0];
+  });
+
+  res.status(201).json({
+    ok: true,
+    mensaje: `Pedido #${pedido.id_pedido} enviado a cocina · Mesa ${id_mesa} · Total $${pedido.total.toFixed(2)}`,
+    id_pedido: pedido.id_pedido,
+    total: pedido.total,
+  });
 };
 
-// PUT /api/pedidos/:id/estado (Actualizar estado: pendiente -> en_cocina -> listo -> servido -> pagado)
+// Máquina de estados: transición permitida -> roles que pueden ejecutarla
+const TRANSICIONES = {
+  pendiente: { en_cocina: ['cocina', 'administrador'], cancelado: ['mesero', 'administrador'] },
+  en_cocina: { listo: ['cocina', 'administrador'] },
+  listo: { servido: ['mesero', 'administrador'] },
+  servido: { pagado: ['mesero', 'administrador'] },
+};
+
+// PUT /api/pedidos/:id/estado
 const updateEstadoPedido = async (req, res) => {
-  const { id } = req.params;
-  const { estado } = req.body;
+  const id = Number(req.params.id);
+  const { estado: nuevo } = req.body;
+  if (!Number.isInteger(id)) throw new HttpError(400, 'ID de pedido inválido.');
 
-  const estadosValidos = ['pendiente', 'en_cocina', 'listo', 'servido', 'pagado', 'cancelado'];
-
-  if (!estado || !estadosValidos.includes(estado)) {
-    return res.status(400).json({
-      ok: false,
-      mensaje: `Estado inválido. Debe ser uno de: [${estadosValidos.join(', ')}].`,
-    });
-  }
-
-  try {
-    // Si el nuevo estado es 'pagado', ejecutamos el Procedimiento Almacenado de PostgreSQL sp_cerrar_pedido
-    if (estado === 'pagado') {
-      await db.query('CALL sp_cerrar_pedido($1)', [id]);
-      return res.status(200).json({
-        ok: true,
-        mensaje: `Pedido #${id} pagado y cerrado exitosamente mediante procedimiento almacenado. Mesa liberada.`,
-      });
-    }
-
-    // Para cualquier otro cambio de fase:
-    const result = await db.query(
-      'UPDATE pedidos SET estado = $1 WHERE id_pedido = $2 RETURNING *',
-      [estado, id]
+  await db.withTransaction(req.usuario, async (client) => {
+    const actual = await client.query(
+      'SELECT estado FROM pedidos WHERE id_pedido = $1 FOR UPDATE',
+      [id]
     );
+    if (actual.rowCount === 0) throw new HttpError(404, `No se encontró el pedido #${id}.`);
 
-    if (result.rowCount === 0) {
-      return res.status(404).json({
-        ok: false,
-        mensaje: `No se encontró el pedido #${id}.`,
-      });
+    const estadoActual = actual.rows[0].estado;
+    const rolesPermitidos = TRANSICIONES[estadoActual]?.[nuevo];
+    if (!rolesPermitidos) {
+      throw new HttpError(409, `No se puede pasar de "${estadoActual}" a "${nuevo}".`);
+    }
+    if (!rolesPermitidos.includes(req.usuario.rol)) {
+      throw new HttpError(403, `El rol "${req.usuario.rol}" no puede marcar un pedido como "${nuevo}".`);
     }
 
-    // Si el pedido se canceló, liberamos la mesa
-    if (estado === 'cancelado') {
-      await db.query('UPDATE mesas SET estado = \'libre\' WHERE id_mesa = $1', [result.rows[0].id_mesa]);
+    if (nuevo === 'pagado') {
+      await client.query('CALL sp_cerrar_pedido($1)', [id]);
+    } else if (nuevo === 'cancelado') {
+      await client.query('CALL sp_cancelar_pedido($1)', [id]); // devuelve stock y libera mesa
+    } else {
+      await client.query('UPDATE pedidos SET estado = $1 WHERE id_pedido = $2', [nuevo, id]);
     }
+  });
 
-    res.status(200).json({
-      ok: true,
-      mensaje: `Estado del pedido #${id} actualizado a "${estado}".`,
-      pedido: result.rows[0],
-    });
-  } catch (error) {
-    console.error('Error en updateEstadoPedido:', error);
-    res.status(500).json({
-      ok: false,
-      mensaje: error.message || 'Error al actualizar el estado de la comanda.',
-    });
-  }
+  res.status(200).json({ ok: true, mensaje: `Pedido #${id} actualizado a "${nuevo}".` });
 };
 
 module.exports = {

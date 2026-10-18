@@ -50,14 +50,9 @@ app.use((req, res, next) => {
   });
 });
 
-// Manejador global de excepciones (500)
-app.use((err, req, res, next) => {
-  console.error('Error no controlado en la aplicación:', err.stack);
-  res.status(500).json({
-    ok: false,
-    mensaje: 'Se produjo un error interno inesperado en el servidor.',
-    error: err.message,
-  });
-});
+const { manejadorErrores } = require('./middlewares/errores');
+
+// Manejador global de excepciones (500 y PostgreSQL)
+app.use(manejadorErrores);
 
 module.exports = app;

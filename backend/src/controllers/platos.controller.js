@@ -188,7 +188,8 @@ const updatePlato = async (req, res) => {
       id,
     ];
 
-    const result = await db.query(query, values);
+    // En transacción para que trg_auditar_precio registre al administrador real
+    const result = await db.withTransaction(req.usuario, (client) => client.query(query, values));
 
     if (result.rows.length === 0) {
       return res.status(404).json({

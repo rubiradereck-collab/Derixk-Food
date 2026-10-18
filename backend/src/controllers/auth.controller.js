@@ -5,6 +5,7 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { JWT_SECRET, JWT_EXPIRES_IN } = require('../config/jwt');
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -42,7 +43,7 @@ const login = async (req, res) => {
     }
 
     // Verificar contraseña con bcrypt
-    const passwordValida = bcrypt.compareSync(password, usuario.password_hash);
+    const passwordValida = await bcrypt.compare(password, usuario.password_hash);
     if (!passwordValida) {
       return res.status(401).json({
         ok: false,
@@ -58,9 +59,7 @@ const login = async (req, res) => {
       rol: usuario.rol,
     };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET || 'clave_secreta_utmach_restaurante_2026', {
-      expiresIn: process.env.JWT_EXPIRES_IN || '8h',
-    });
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 
     res.status(200).json({
       ok: true,
